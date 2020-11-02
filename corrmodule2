@@ -1,0 +1,33 @@
+Module[{\[Lambda] = 0.001, times = 0},
+Module[{control = 0.001},
+ Label[label1];
+ NewPrint["times= ", times, "  \[Lambda]= ", \[Lambda]];
+ \[Chi]0 = chisqtotal[a /. List -> Sequence];
+ NewPrint["\[Chi]0=", \[Chi]0];
+ \[Beta] = (-1/2)*df[a /. List -> Sequence, 0.01, chisqtotal];
+ NewPrint["\[Beta]=", \[Beta]];
+ \[Alpha] = (1/2)*ddf[a /. List -> Sequence, 0.01, chisqtotal];
+ NewPrint["\[Alpha]=", \[Alpha]];
+ \[Alpha]kl = 
+  Table[If[j == k, (1 + \[Lambda])*\[Alpha][[j, k]], \[Alpha][[j, 
+     k]]], {j, 1, 2}, {k, 1, 2}];
+ NewPrint["\[Alpha]kl=", \[Alpha]kl];
+ \[Delta]a = LinearSolve[\[Alpha]kl, \[Beta]];
+ NewPrint["\[Delta]a=", \[Delta]a];
+ \[Chi]n = chisqtotal[(a + \[Delta]a) /. List -> Sequence];
+ NewPrint["\[Chi]n=", \[Chi]n];
+ NewPrint["\[Chi]0-\[Chi]n= ", Evaluate[\[Chi]0 - \[Chi]n]];
+ NewPrint["times= ", times, "  entra en el if"];
+ If[times < 2, 
+  If[\[Chi]n \[GreaterSlantEqual] \[Chi]0, 
+   NewPrint["\[Chi]n\[GreaterSlantEqual]\[Chi]0"]; \[Lambda] = 
+    10*\[Lambda]; Goto[label1];, 
+   NewPrint["\[Chi]0-\[Chi]n= ", \[Chi]0 - \[Chi]n]; 
+   If[Evaluate[\[Chi]0 - \[Chi]n] <= 0.001, 
+    NewPrint["\[Chi]0-\[Chi]n\[LessEqual]0.001"]; times = times + 1; 
+    NewPrint["nuevo times, \[Chi]0-\[Chi]n=", \[Chi]0 - \[Chi]n, 
+     "  times=", times]; \[Lambda] = \[Lambda]/10.; a = a + \[Delta]a; 
+    Goto[label1], \[Lambda] = \[Lambda]/10.; a = a + \[Delta]a; 
+    Goto[label1]]], NewPrint["Finished: a= ", a]; NewPrint["Finished: Errors= ", Sqrt[Diagonal[Inverse[\[Alpha]]]]];
+ NewPrint["Finished: Corrmat= ", Inverse[\[Alpha]]];
+];]]
